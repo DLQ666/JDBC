@@ -1,4 +1,4 @@
-package com.dlq3.preparedstatement.crud;
+package com.dlq3.bean;
 
 import java.util.Date;
 

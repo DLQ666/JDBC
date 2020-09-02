@@ -1,9 +1,9 @@
 package com.dlq3.preparedstatement.crud;
 
+import com.dlq3.bean.Customer;
 import com.dlq3.util.JDBCUtils;
 import org.junit.jupiter.api.Test;
 
-import javax.print.attribute.standard.NumberUp;
 import java.lang.reflect.Field;
 import java.sql.*;
 
@@ -41,7 +41,7 @@ public class CustomerForQuery {
             }
             //执行
             rs = ps.executeQuery();
-            //获取结果集的原数据
+            //获取结果集的元数据
             ResultSetMetaData rsmd = rs.getMetaData();
             //通过ResultSetMetaData获取结果集中的列数
             int columnCount = rsmd.getColumnCount();
