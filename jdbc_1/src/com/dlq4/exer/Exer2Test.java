@@ -18,7 +18,7 @@ import java.util.Scanner;
 public class Exer2Test {
 
     //添加一条记录
-    public static void main3(String[] args) {
+    public static void main1(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("四级/六级：");
         int type = scanner.nextInt();
@@ -42,7 +42,7 @@ public class Exer2Test {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main2(String[] args) {
         System.out.println("请选择您要输入的类型：");
         System.out.println("a.准考证号");
         System.out.println("b.身份证号");
@@ -51,8 +51,8 @@ public class Exer2Test {
         if ("a".equalsIgnoreCase(selection)) {
             System.out.println("请输入准考证号：");
             String examCard = scanner.next();
-            String sql = "select FlowID flowID,Type type,IDCard,ExamCard examCard,StudentName studentName,Location location,Grade grade  from examstudent where ExamCard = ?";
-            Examstudent examstudent = QueryExamstudent(sql, examCard);
+            String sql = "select FlowID flowID,Type type,IDCard,ExamCard examCard,StudentName studentName,Location location,Grade grade  from examstudent where examCard = ?";
+            Examstudent examstudent = QueryExamstudent(Examstudent.class,sql, examCard);
             if (examstudent == null) {
                 System.out.println("查无此人！请重新进入程序");
                 return;
@@ -69,7 +69,7 @@ public class Exer2Test {
             System.out.println("请输入身份证号：");
             String IDCard = scanner.next();
             String sql = "select FlowID flowID,Type type,IDCard,ExamCard examCard,StudentName studentName,Location location,Grade grade  from examstudent where IDCard = ?";
-            Examstudent examstudent = QueryExamstudent(sql, IDCard);
+            Examstudent examstudent = QueryExamstudent(Examstudent.class,sql, IDCard);
             if (examstudent == null) {
                 System.out.println("查无此人！请重新进入程序");
                 return;
@@ -86,8 +86,38 @@ public class Exer2Test {
             System.out.println("您的输入有误！请重新进入程序");
             return;
         }
+    }
 
-
+    public static void main3(String[] args) {
+        System.out.println("请输入学生的考号：");
+        Scanner scanner = new Scanner(System.in);
+        String examCard = scanner.next();
+        //查询指定准考证号的学生
+        String sql = "select FlowID flowID,Type type,IDCard,ExamCard examCard,StudentName studentName,Location location,Grade grade  from examstudent where examCard = ?";
+        Examstudent examstudent = QueryExamstudent(Examstudent.class,sql, examCard);
+        if (examstudent == null) {
+            System.out.println("查无此人！请重新输入");
+        }else {
+            String delSql = "delete from examstudent where ExamCard = ? ";
+            int deleteCount = update(delSql, examCard);
+            if (deleteCount>0){
+                System.out.println("删除成功");
+            }
+        }
+    }
+    //优化之后
+    public static void main(String[] args) {
+        System.out.println("请输入学生的考号：");
+        Scanner scanner = new Scanner(System.in);
+        String examCard = scanner.next();
+        //查询指定准考证号的学生
+        String delSql = "delete from examstudent where ExamCard = ? ";
+        int deleteCount = update(delSql, examCard);
+        if (deleteCount>0){
+            System.out.println("删除成功");
+        }else {
+            System.out.println("查无此人！请重新输入");
+        }
     }
 
     //通用的增删改操作
@@ -122,7 +152,7 @@ public class Exer2Test {
         return 0;
     }
 
-    public static Examstudent QueryExamstudent(String sql, Object... args) {
+    public static <T> T QueryExamstudent(Class<T> clazz,String sql, Object... args) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -140,7 +170,7 @@ public class Exer2Test {
             int columnCount = rsmd.getColumnCount();
             //创建集合对象
             if (rs.next()) {
-                Examstudent examstudent = new Examstudent();
+                T t = clazz.newInstance();
                 //处理结果集一行数据中的每一个列
                 for (int i = 0; i < columnCount; i++) {
                     //获取列值
@@ -149,11 +179,11 @@ public class Exer2Test {
                     String columnLabel = rsmd.getColumnLabel(i + 1);
 
                     //给customer对象指定的columnName属性，赋值为columvalue，通过反射
-                    Field field = Examstudent.class.getDeclaredField(columnLabel);
+                    Field field = clazz.getDeclaredField(columnLabel);
                     field.setAccessible(true);
-                    field.set(examstudent, columvalue);
+                    field.set(t, columvalue);
                 }
-                return examstudent;
+                return t;
             }
         } catch (Exception e) {
             e.printStackTrace();
