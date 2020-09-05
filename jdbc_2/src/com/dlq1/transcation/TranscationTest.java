@@ -24,7 +24,8 @@ public class TranscationTest {
     @Test
     public void testupdate() {
 
-        String sql = "update user_table set balance = balance - 100 where user = ? ";
+        String sql = "update user_table " +
+                " balance = balance - 100 where user = ? ";
         update(sql, "AA");
 
         //模拟网络异常
